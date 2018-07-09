@@ -1,10 +1,12 @@
 function [coeff] = Ransac(pts, sampleNum, iterNum, thDist, mplot, axisrange)
 
 %% parameter
+ptNum= size(pts,1);
+inlrNum = zeros(iterNum,1);
+coeff1 = zeros(iterNum,4);
 
-    ptNum= size(pts,1);
-    inlrNum = zeros(iterNum,1);
-    coeff1 = zeros(iterNum,4);
+x_bound_up = max(pts(:,1));    y_bound_up = max(pts(:,2));    z_bound_up = max(pts(:,3));    
+x_bound_down = min(pts(:,1));  y_bound_down = min(pts(:,2));  z_bound_down = min(pts(:,3));    
 
 %% Begin ransac
 
@@ -27,16 +29,13 @@ for i = 1:iterNum
     
     %plot
     if mplot ==1
-        
         w = waitforbuttonpress;  
         if w == 1
             clf;
             p0 = plot3(pts(:,1),pts(:,2),pts(:,3),'b*');
+            axis([x_bound_down-0.5 x_bound_up+0.5 y_bound_down-0.5 y_bound_up+0.5 z_bound_down-0.5 z_bound_up+0.5]);
             grid on;
             axis equal;
-            
-            %axis([-0.5 axisrange(1)+0.5 -0.5 axisrange(2)+0.5 -0.5 axisrange(3)+0.5]);
-            axis([-0.5 20 -5 20 -10 15]);
             rotate3d on;
             hold on;
         end
@@ -48,14 +47,17 @@ for i = 1:iterNum
         
         w = waitforbuttonpress;    
         if w == 1   
-            p2 = quiver3(0, 0, 0, Normal_Vector(1,1), Normal_Vector(2,1), Normal_Vector(3,1),'r');
+            p2 = quiver3(0, 0, 0, Normal_Vector(1,1)*3, Normal_Vector(2,1)*3, Normal_Vector(3,1)*3,'r');
         end
         
         w = waitforbuttonpress;    
         if w == 1   
-            [x, y]=meshgrid(0:0.1:axisrange(1));
-            z = (-A*x-B*y-D)/C;
-            p3 = mesh(x,y,z);
+            x = x_bound_down:0.1:x_bound_up;
+            y = y_bound_down:0.1:y_bound_up;
+            [X, Y]=meshgrid(x,y);
+            Z = (-A*X-B*Y-D)/C;
+            p3 = mesh(X,Y,Z);
+            axis([x_bound_down-0.5 x_bound_up+0.5 y_bound_down-0.5 y_bound_up+0.5 z_bound_down-0.5 z_bound_up+0.5]);
         end
         
         w = waitforbuttonpress;    
